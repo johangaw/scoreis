@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.scoreis.databinding.FragmentScoreBinding
 import com.example.scoreis.utils.Logger
 import com.example.scoreis.utils.getParticipants
+import com.example.scoreis.utils.getScoreFor
 import java.lang.Integer.max
 import java.util.*
 
@@ -107,8 +108,7 @@ class ScoreFragment : Fragment(), Logger {
 
     private fun newScores(scores: String) {
         val participants = viewModel.getParticipants().value ?: emptyList()
-        participants.forEach {
-        }
+        participants.map { getScoreFor(scores, it)}
     }
 
     enum class RecordingRequest(val code: Int, val msg: String) {
