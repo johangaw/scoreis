@@ -33,6 +33,10 @@ class ScoreFragment : Fragment(), Logger {
     ): View? {
         val binding = FragmentScoreBinding.inflate(inflater, container, false)
 
+        binding.fab.setOnClickListener{
+            tryConvertSpeechToText(RecordingRequest.GET_SCORE)
+        }
+
         binding.bottomAppBar.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.menu_item_add_score -> {
