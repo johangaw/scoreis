@@ -33,7 +33,7 @@ class ScoreFragment : Fragment(), Logger {
         val binding = FragmentScoreBinding.inflate(inflater, container, false)
 
         binding.bottomAppBar.setOnMenuItemClickListener { item: MenuItem ->
-            when(item.itemId) {
+            when (item.itemId) {
                 R.id.menu_item_add_score -> {
                     tryConvertSpeechToText(RecordingRequest.GET_SCORE)
                     true
@@ -53,7 +53,7 @@ class ScoreFragment : Fragment(), Logger {
             this.adapter = adapter
         }
 
-        viewModel.getParticipants().observe(viewLifecycleOwner) {participants ->
+        viewModel.getParticipants().observe(viewLifecycleOwner) { participants ->
             adapter.submitList(participants)
             layoutManager.spanCount = max(participants.size, 1)
         }
@@ -108,7 +108,11 @@ class ScoreFragment : Fragment(), Logger {
 
     private fun newScores(scores: String) {
         val participants = viewModel.getParticipants().value ?: emptyList()
-        participants.map { getScoreFor(scores, it)}
+        participants.forEach {participant ->
+            getScoreFor(scores, participant)?.let {score ->
+                viewModel.addScore(participant, score)
+            }
+        }
     }
 
     enum class RecordingRequest(val code: Int, val msg: String) {
