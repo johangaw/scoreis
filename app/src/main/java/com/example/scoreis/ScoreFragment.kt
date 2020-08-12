@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -29,8 +30,18 @@ class ScoreFragment : Fragment(), Logger {
     ): View? {
         val binding = FragmentScoreBinding.inflate(inflater, container, false)
 
-        binding.addPlayerButton.setOnClickListener {
-            tryConvertSpeechToText(RecordingRequest.GET_PARTICIPANTS)
+        binding.bottomAppBar.setOnMenuItemClickListener { item: MenuItem ->
+            when(item.itemId) {
+                R.id.menu_item_add_score -> {
+                    tryConvertSpeechToText(RecordingRequest.GET_SCORE)
+                    true
+                }
+                R.id.menu_item_add_participants -> {
+                    tryConvertSpeechToText(RecordingRequest.GET_PARTICIPANTS)
+                    true
+                }
+                else -> false
+            }
         }
 
         val layoutManager = GridLayoutManager(context, 1)
@@ -68,7 +79,6 @@ class ScoreFragment : Fragment(), Logger {
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         )
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale("sv_SE"))
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Need to speak")
         try {

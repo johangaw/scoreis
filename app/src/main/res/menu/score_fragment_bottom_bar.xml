@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_item_add_score"
+        android:icon="@drawable/ic_plus"
+        android:title="Add score"
+        android:contentDescription="Add"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/menu_item_add_participants"
+        android:icon="@drawable/ic_add_or_remove_participants"
+        android:title="Add participants"
+        android:contentDescription="Add participants"
+        app:showAsAction="ifRoom"
+        />
+</menu>
