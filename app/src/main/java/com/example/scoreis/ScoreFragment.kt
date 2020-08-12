@@ -16,6 +16,7 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.scoreis.databinding.FragmentScoreBinding
 import com.example.scoreis.utils.Logger
+import com.example.scoreis.utils.getParticipants
 import java.lang.Integer.max
 import java.util.*
 
@@ -70,6 +71,14 @@ class ScoreFragment : Fragment(), Logger {
                     }
                 }
             }
+            RecordingRequest.GET_SCORE.code -> {
+                if (resultCode == RESULT_OK) {
+                    data?.let {
+                        val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                        newScores(result[0])
+                    }
+                }
+            }
         }
     }
 
@@ -93,14 +102,13 @@ class ScoreFragment : Fragment(), Logger {
     }
 
     private fun newParticipants(names: String) {
-        val noNames = listOf("och")
-        val nameList = names
-            .split(" ")
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .filter { !noNames.contains(it) }
-            .toList()
-        viewModel.addParticipants(nameList)
+        viewModel.addParticipants(getParticipants(names))
+    }
+
+    private fun newScores(scores: String) {
+        val participants = viewModel.getParticipants().value ?: emptyList()
+        participants.forEach {
+        }
     }
 
     enum class RecordingRequest(val code: Int, val msg: String) {
