@@ -2,7 +2,6 @@ package com.example.scoreis
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 
 class ScoreFragmentViewModel : ViewModel() {
@@ -12,8 +11,9 @@ class ScoreFragmentViewModel : ViewModel() {
             linkedMapOf()
         )
 
-    fun getParticipants(): LiveData<List<String>> =
-        Transformations.map(participants) { it.keys.toList() }
+    @Suppress("UNCHECKED_CAST")
+    fun getScorePerParticipant(): LiveData<Map<String, List<Int>>> =
+        participants as LiveData<Map<String, List<Int>>>
 
     fun addParticipants(names: List<String>) {
         names.forEach { name ->

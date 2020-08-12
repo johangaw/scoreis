@@ -12,6 +12,8 @@ fun getParticipants(speech: String): List<String> {
 
 fun getScoreFor(speech: String, participant: String): Int? {
     val startIndex = speech.indexOf(participant)
+    if (startIndex == -1) return null
+
     val matches = Regex("\\d+").find(speech, startIndex)
     return matches?.let { it.value.toInt() }
 }
