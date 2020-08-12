@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.scoreis.data.Game
@@ -25,7 +25,9 @@ import java.util.*
 
 class ScoreFragment : Fragment(), Logger {
 
-    private val viewModel: ScoreFragmentViewModel by viewModels()
+    private val viewModel: ScoreFragmentViewModel by activityViewModels {
+        ScoreFragmentViewModelFactory(requireActivity().application)
+    }
     private var game: Game? = null
 
     override fun onCreateView(
@@ -59,10 +61,12 @@ class ScoreFragment : Fragment(), Logger {
             this.adapter = adapter
         }
 
-        viewModel.getGame().observe(viewLifecycleOwner) { game ->
-            this.game = game
-            if (game.hasPlayers) layoutManager.spanCount = game.playerCount
-            adapter.submitList(ScoreMatrixIterator(game).asSequence().toList())
+        viewModel.gameState.observe(viewLifecycleOwner) {
+            it?.let { game ->
+                this.game = game
+                if (game.hasPlayers) layoutManager.spanCount = game.playerCount
+                adapter.submitList(ScoreMatrixIterator(game).asSequence().toList())
+            }
         }
 
         return binding.root
@@ -74,16 +78,20 @@ class ScoreFragment : Fragment(), Logger {
             RecordingRequest.GET_PLAYERS.code -> {
                 if (resultCode == RESULT_OK) {
                     data?.let {
-                        val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                        newPlayers(result[0])
+                        data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                            ?.let {
+                                newPlayers(it[0])
+                            }
                     }
                 }
             }
             RecordingRequest.GET_SCORE.code -> {
                 if (resultCode == RESULT_OK) {
                     data?.let {
-                        val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                        newScores(result[0])
+                        data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                            ?.let {
+                                newScores(it[0])
+                            }
                     }
                 }
             }
@@ -117,7 +125,7 @@ class ScoreFragment : Fragment(), Logger {
         game?.players
             ?.forEach { player ->
                 getScoreFor(scores, player.name)?.let { scoreValue ->
-                    viewModel.addScore(player.name, scoreValue)
+                    viewModel.addScore(player, scoreValue)
                 }
             }
     }

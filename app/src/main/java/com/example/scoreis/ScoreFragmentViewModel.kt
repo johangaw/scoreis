@@ -1,47 +1,80 @@
 package com.example.scoreis
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.*
 import com.example.scoreis.data.Game
 import com.example.scoreis.data.Player
-import com.example.scoreis.data.Score
+import com.example.scoreis.database.*
+import com.example.scoreis.utils.Logger
+import com.example.scoreis.utils.asGame
+import kotlinx.coroutines.launch
 
-class ScoreFragmentViewModel : ViewModel() {
+class ScoreFragmentViewModel(private val database: ScoreisDatabase) : ViewModel(), Logger {
 
-    private val scoreMap: MutableLiveData<LinkedHashMap<String, MutableList<Int>>> =
-        MutableLiveData(
-            linkedMapOf()
-        )
+    private val gameId = 1
 
-    fun getGame(): LiveData<Game> = Transformations.map(scoreMap) { scoreMap ->
-        val players = scoreMap.entries.map {(name, scores) ->
-            Player(name = name, scores = scores.map { Score(it) })
+    init {
+        //TODO remove when game is selected/created from UI
+        viewModelScope.launch {
+            val game = database.gameDao.getGame(gameId)
+            if (game == null) {
+                database.gameDao.insert(DBGame(gameId))
+            }
         }
-        Game(players = players)
+    }
+
+    val gameState: LiveData<Game?> = Transformations.map(database.gameDao.observeGame(gameId)) {
+        it?.asGame()
     }
 
     fun addPlayer(names: List<String>) {
-        names.forEach { name ->
-            scoreMap.value?.putIfAbsent(name, mutableListOf())
+        viewModelScope.launch {
+            database.playerDao.insert(
+                names.map { DBPlayer(name = it, gameId = gameId) }
+            )
         }
-        scoreMap.postValue(scoreMap.value)
     }
 
-    fun addScore(player: String, score: Int) {
-        scoreMap.value?.get(player)?.add(score)
-        scoreMap.postValue(scoreMap.value)
+    fun addScore(player: Player, score: Int) {
+        viewModelScope.launch {
+            database.scoreDao.insert(
+                listOf(
+                    DBScore(
+                        playerId = player.id,
+                        value = score
+                    )
+                )
+            )
+        }
     }
 
     fun fillScores(defaultScore: Int = 0) {
-        scoreMap.value?.let { scoreMap ->
-            val maxNumberOfScores = scoreMap.values.map { it.size }.max() ?: 0
-            val defaultSequence = generateSequence { defaultScore }
-            scoreMap.values.forEach {scores ->
-                scores.addAll(defaultSequence.take(maxNumberOfScores - scores.size))
-            }
-            this.scoreMap.postValue(scoreMap)
+        viewModelScope.launch {
+            database.gameDao.getGame(gameId)
+                ?.asGame()
+                ?.apply {
+                    players.forEach { player ->
+                        val defaultSequence = generateSequence { defaultScore }
+                        database.scoreDao.insert(
+                            defaultSequence
+                                .take(startedRounds - player.scores.size)
+                                .map { DBScore(value = it, playerId = player.id) }
+                                .toList()
+                        )
+                    }
+                }
         }
+    }
+}
+
+@Suppress("UNCHECKED_CAST")
+class ScoreFragmentViewModelFactory(private val application: Application) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ScoreFragmentViewModel::class.java)) {
+            val database = getDatabase(application)
+            return ScoreFragmentViewModel(database) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
