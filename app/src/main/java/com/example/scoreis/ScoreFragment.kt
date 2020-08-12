@@ -16,6 +16,7 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.scoreis.databinding.FragmentScoreBinding
 import com.example.scoreis.utils.Logger
+import com.example.scoreis.utils.ScoreMatrixIterator
 import com.example.scoreis.utils.getParticipants
 import com.example.scoreis.utils.getScoreFor
 import java.lang.Integer.max
@@ -54,9 +55,8 @@ class ScoreFragment : Fragment(), Logger {
         }
 
         viewModel.getScorePerParticipant().observe(viewLifecycleOwner) { scoreMap ->
-            val scores = scoreMap.values
             layoutManager.spanCount = max(scoreMap.keys.size, 1)
-            adapter.submitList(scoreMap.keys.toList() + zipAll(scores.toList()).map { it.toString()})
+            adapter.submitList(ScoreMatrixIterator(scoreMap).asSequence().toList())
         }
 
         return binding.root
@@ -122,17 +122,3 @@ class ScoreFragment : Fragment(), Logger {
     }
 
 }
-
-
-fun zipAll(list: List<List<Int>>): List<Int> {
-    return when (list.size) {
-        0 -> emptyList()
-        1 -> list.first()
-        else -> {
-            val head = list.first()
-            val tail = list.drop(1)
-            head.zip(zipAll(tail)) { a, b -> listOf(a, b) }.flatten()
-        }
-    }
-}
-
