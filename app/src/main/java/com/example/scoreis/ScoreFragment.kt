@@ -14,18 +14,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.scoreis.data.Game
 import com.example.scoreis.databinding.FragmentScoreBinding
 import com.example.scoreis.utils.Logger
 import com.example.scoreis.utils.ScoreMatrixIterator
-import com.example.scoreis.utils.getParticipants
+import com.example.scoreis.utils.getPlayers
 import com.example.scoreis.utils.getScoreFor
-import java.lang.Integer.max
 import java.util.*
 
 
 class ScoreFragment : Fragment(), Logger {
 
     private val viewModel: ScoreFragmentViewModel by viewModels()
+    private var game: Game? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -33,7 +34,7 @@ class ScoreFragment : Fragment(), Logger {
     ): View? {
         val binding = FragmentScoreBinding.inflate(inflater, container, false)
 
-        binding.fab.setOnClickListener{
+        binding.fab.setOnClickListener {
             tryConvertSpeechToText(RecordingRequest.GET_SCORE)
         }
 
@@ -44,7 +45,7 @@ class ScoreFragment : Fragment(), Logger {
                     true
                 }
                 R.id.menu_item_add_participants -> {
-                    tryConvertSpeechToText(RecordingRequest.GET_PARTICIPANTS)
+                    tryConvertSpeechToText(RecordingRequest.GET_PLAYERS)
                     true
                 }
                 else -> false
@@ -58,9 +59,10 @@ class ScoreFragment : Fragment(), Logger {
             this.adapter = adapter
         }
 
-        viewModel.getScorePerParticipant().observe(viewLifecycleOwner) { scoreMap ->
-            layoutManager.spanCount = max(scoreMap.keys.size, 1)
-            adapter.submitList(ScoreMatrixIterator(scoreMap).asSequence().toList())
+        viewModel.getGame().observe(viewLifecycleOwner) { game ->
+            this.game = game
+            if (game.hasPlayers) layoutManager.spanCount = game.playerCount
+            adapter.submitList(ScoreMatrixIterator(game).asSequence().toList())
         }
 
         return binding.root
@@ -69,11 +71,11 @@ class ScoreFragment : Fragment(), Logger {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            RecordingRequest.GET_PARTICIPANTS.code -> {
+            RecordingRequest.GET_PLAYERS.code -> {
                 if (resultCode == RESULT_OK) {
                     data?.let {
                         val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                        newParticipants(result[0])
+                        newPlayers(result[0])
                     }
                 }
             }
@@ -107,17 +109,17 @@ class ScoreFragment : Fragment(), Logger {
         }
     }
 
-    private fun newParticipants(names: String) {
-        viewModel.addParticipants(getParticipants(names))
+    private fun newPlayers(names: String) {
+        viewModel.addPlayer(getPlayers(names))
     }
 
     private fun newScores(scores: String) {
-        val participants = viewModel.getScorePerParticipant().value?.keys?.toList() ?: emptyList()
-        participants.forEach { participant ->
-            getScoreFor(scores, participant)?.let { score ->
-                viewModel.addScore(participant, score)
+        game?.players
+            ?.forEach { player ->
+                getScoreFor(scores, player.name)?.let { scoreValue ->
+                    viewModel.addScore(player.name, scoreValue)
+                }
             }
-        }
     }
 
     private fun setRestToZero() {
@@ -125,7 +127,7 @@ class ScoreFragment : Fragment(), Logger {
     }
 
     enum class RecordingRequest(val code: Int, val msg: String) {
-        GET_PARTICIPANTS(100, "Vilka är med?"),
+        GET_PLAYERS(100, "Vilka är med?"),
         GET_SCORE(101, "Hur många poäng fick ni?")
     }
 

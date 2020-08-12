@@ -2,39 +2,46 @@ package com.example.scoreis
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.example.scoreis.data.Game
+import com.example.scoreis.data.Player
+import com.example.scoreis.data.Score
 
 class ScoreFragmentViewModel : ViewModel() {
 
-    private val participants: MutableLiveData<LinkedHashMap<String, MutableList<Int>>> =
+    private val scoreMap: MutableLiveData<LinkedHashMap<String, MutableList<Int>>> =
         MutableLiveData(
             linkedMapOf()
         )
 
-    @Suppress("UNCHECKED_CAST")
-    fun getScorePerParticipant(): LiveData<Map<String, List<Int>>> =
-        participants as LiveData<Map<String, List<Int>>>
-
-    fun addParticipants(names: List<String>) {
-        names.forEach { name ->
-            participants.value?.putIfAbsent(name, mutableListOf())
+    fun getGame(): LiveData<Game> = Transformations.map(scoreMap) { scoreMap ->
+        val players = scoreMap.entries.map {(name, scores) ->
+            Player(name = name, scores = scores.map { Score(it) })
         }
-        participants.postValue(participants.value)
+        Game(players = players)
     }
 
-    fun addScore(participant: String, score: Int) {
-        participants.value?.get(participant)?.add(score)
-        participants.postValue(participants.value)
+    fun addPlayer(names: List<String>) {
+        names.forEach { name ->
+            scoreMap.value?.putIfAbsent(name, mutableListOf())
+        }
+        scoreMap.postValue(scoreMap.value)
+    }
+
+    fun addScore(player: String, score: Int) {
+        scoreMap.value?.get(player)?.add(score)
+        scoreMap.postValue(scoreMap.value)
     }
 
     fun fillScores(defaultScore: Int = 0) {
-        participants.value?.let { scoreMap ->
+        scoreMap.value?.let { scoreMap ->
             val maxNumberOfScores = scoreMap.values.map { it.size }.max() ?: 0
             val defaultSequence = generateSequence { defaultScore }
             scoreMap.values.forEach {scores ->
                 scores.addAll(defaultSequence.take(maxNumberOfScores - scores.size))
             }
-            participants.postValue(scoreMap)
+            this.scoreMap.postValue(scoreMap)
         }
     }
 }
