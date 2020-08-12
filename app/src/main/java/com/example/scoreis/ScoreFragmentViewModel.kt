@@ -26,4 +26,15 @@ class ScoreFragmentViewModel : ViewModel() {
         participants.value?.get(participant)?.add(score)
         participants.postValue(participants.value)
     }
+
+    fun fillScores(defaultScore: Int = 0) {
+        participants.value?.let { scoreMap ->
+            val maxNumberOfScores = scoreMap.values.map { it.size }.max() ?: 0
+            val defaultSequence = generateSequence { defaultScore }
+            scoreMap.values.forEach {scores ->
+                scores.addAll(defaultSequence.take(maxNumberOfScores - scores.size))
+            }
+            participants.postValue(scoreMap)
+        }
+    }
 }

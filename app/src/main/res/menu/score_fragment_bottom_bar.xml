@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_item_add_score"
-        android:icon="@drawable/ic_plus"
+        android:id="@+id/menu_item_set_rest_to_zero"
+        android:icon="@drawable/ic_set_rest_to_zero"
         android:title="Add score"
         android:contentDescription="Add"
         app:showAsAction="ifRoom"

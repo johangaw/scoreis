@@ -39,8 +39,8 @@ class ScoreFragment : Fragment(), Logger {
 
         binding.bottomAppBar.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
-                R.id.menu_item_add_score -> {
-                    tryConvertSpeechToText(RecordingRequest.GET_SCORE)
+                R.id.menu_item_set_rest_to_zero -> {
+                    setRestToZero()
                     true
                 }
                 R.id.menu_item_add_participants -> {
@@ -118,6 +118,10 @@ class ScoreFragment : Fragment(), Logger {
                 viewModel.addScore(participant, score)
             }
         }
+    }
+
+    private fun setRestToZero() {
+        viewModel.fillScores(0)
     }
 
     enum class RecordingRequest(val code: Int, val msg: String) {
