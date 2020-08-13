@@ -3,7 +3,7 @@ package com.example.scoreis.data
 data class Game(val players: List<Player>, val gameId: Int) {
     val playerCount: Int get() = players.size
 
-    val startedRounds: Int get() = players.map { it.scores }.map { it.size }.max() ?: 0
+    val startedRounds: Int get() = players.map { it.scores }.map { it.size }.maxOrNull() ?: 0
 
     val hasPlayers: Boolean get() = players.isNotEmpty()
 }

@@ -1,2 +1,3 @@
 include ':app'
 rootProject.name = "Scoreis"
+include ':compse-ui'

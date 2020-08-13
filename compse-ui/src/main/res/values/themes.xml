@@ -1,0 +1,12 @@
+<resources>
+
+    <style name="Theme.Scoreis.NoActionBar" parent="Theme.AppCompat.DayNight">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Scoreis.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Scoreis.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+</resources>
