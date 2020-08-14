@@ -36,7 +36,7 @@ fun ScoreisTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composabl
     }
 
     MaterialTheme(
-        colors = colors,
+//        colors = colors,
         typography = typography,
         shapes = shapes,
         content = content
