@@ -7,46 +7,55 @@ import androidx.ui.foundation.Box
 import androidx.ui.foundation.Icon
 import androidx.ui.foundation.Text
 import androidx.ui.foundation.shape.corner.CircleShape
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredHeight
+import androidx.ui.layout.Spacer
 import androidx.ui.layout.size
 import androidx.ui.material.*
-import androidx.ui.material.MaterialTheme.colors
 import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.Menu
+import androidx.ui.material.icons.filled.Add
+import androidx.ui.res.vectorResource
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.dp
+import com.example.compse_ui.R
 
 
 @Composable
-fun AppLayout(content: @Composable () -> Unit) {
+fun AppLayout(
+    onSetRestToZeroClick: () -> Unit = {},
+    onAddPlayerClick: () -> Unit = {},
+    onAddScoreClick: () -> Unit = {},
+    content: @Composable () -> Unit
+) {
     val scaffoldState = remember { ScaffoldState() }
+    val fabShape = CircleShape
+
     Scaffold(
         scaffoldState = scaffoldState,
-        drawerContent = { Text("Drawer content") },
-        topAppBar = {
-            TopAppBar(
-                title = { Text("Simple Scaffold Screen") },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        scaffoldState.drawerState = DrawerState.Opened
-                    }) {
-                        Icon(Icons.Filled.Menu)
-                    }
+        topAppBar = { TopAppBar(title = { Text("Scoreis") }) },
+        bottomAppBar = {
+            BottomAppBar(
+                cutoutShape = CircleShape,
+                fabConfiguration = it,
+                ) {
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = onSetRestToZeroClick) {
+                    Icon(vectorResource(id = R.drawable.ic_set_rest_to_zero))
                 }
-            )
+                IconButton(onClick = onAddPlayerClick) {
+                    Icon(vectorResource(id = R.drawable.ic_add_player))
+                }
+            }
         },
-        floatingActionButtonPosition = Scaffold.FabPosition.End,
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text("Inc") },
-                onClick = { /* fab click handler */ }
+            FloatingActionButton(
+                icon = { Icon(Icons.Filled.Add) },
+                shape = fabShape,
+                onClick = onAddScoreClick,
             )
         },
+        floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
         bodyContent = { modifier ->
             Surface(modifier = modifier) {
-               content()
+                content()
             }
         }
     )
