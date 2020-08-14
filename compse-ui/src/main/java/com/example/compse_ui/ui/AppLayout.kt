@@ -23,7 +23,7 @@ fun AppLayout(
     onSetRestToZeroClick: () -> Unit = {},
     onAddPlayerClick: () -> Unit = {},
     onAddScoreClick: () -> Unit = {},
-    content: @Composable () -> Unit
+    content: @Composable (Modifier) -> Unit
 ) {
     val scaffoldState = remember { ScaffoldState() }
     val fabShape = CircleShape
@@ -53,11 +53,7 @@ fun AppLayout(
             )
         },
         floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
-        bodyContent = { modifier ->
-            Surface(modifier = modifier) {
-                content()
-            }
-        }
+        bodyContent = content
     )
 }
 

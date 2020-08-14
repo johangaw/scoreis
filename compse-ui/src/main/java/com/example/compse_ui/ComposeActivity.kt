@@ -6,24 +6,27 @@ import androidx.compose.Composable
 import androidx.ui.core.Modifier
 import androidx.ui.core.setContent
 import androidx.ui.foundation.Text
-import androidx.ui.layout.*
+import androidx.ui.layout.Arrangement
+import androidx.ui.layout.Column
+import androidx.ui.layout.Row
+import androidx.ui.layout.RowScope.weight
+import androidx.ui.layout.fillMaxWidth
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
 import androidx.ui.text.style.TextAlign
 import androidx.ui.tooling.preview.Preview
-import com.example.compse_ui.data.*
+import com.example.compse_ui.data.Game
 import com.example.compse_ui.data.getSampleGame
+import com.example.compse_ui.ui.AppLayout
 import com.example.compse_ui.ui.ScoreisTheme
+
 
 class ComposeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             ScoreisTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    ScoreTable(getSampleGame())
+                AppLayout {
+                    ScoreTable(game = getSampleGame())
                 }
             }
         }
@@ -32,7 +35,7 @@ class ComposeActivity : AppCompatActivity() {
 
 @Composable
 fun ScoreTable(game: Game) {
-    Column(Modifier.fillMaxWidth()) {
+    Column(Modifier.fillMaxWidth().weight(1.0F)) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -46,8 +49,11 @@ fun ScoreTable(game: Game) {
             }
         }
 
+        // maxOrNull does not work with the preview...
+        // Maybe need to upgrade something to kotlin 1.4
         val rounds = game.players.map { it.scores }.map { it.size }.max() ?: 0
-        repeat(rounds) {index ->
+
+        repeat(rounds) { index ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
