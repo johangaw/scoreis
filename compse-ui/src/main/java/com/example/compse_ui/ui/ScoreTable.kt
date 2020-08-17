@@ -9,24 +9,36 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.RowScope.weight
 import androidx.ui.layout.fillMaxWidth
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.TextButton
+import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.tooling.preview.Preview
 import com.example.compse_ui.data.Game
+import com.example.compse_ui.data.Player
+import com.example.compse_ui.data.Score
 import com.example.compse_ui.data.getSampleGame
 
 @Composable
-fun ScoreTable(game: Game) {
+fun ScoreTable(
+    game: Game,
+    onScoreClickListener: (score: Score) -> Unit = {},
+    onPlayerClickListener: (player: Player) -> Unit = {},
+) {
     Column(Modifier.fillMaxWidth().weight(1.0F)) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             game.players.forEach {
-                Text(
-                    text = it.name,
-                    textAlign = TextAlign.Center,
+                TextButton(
                     modifier = Modifier.weight(1.0F),
-                    style = MaterialTheme.typography.h6,
-                )
+                    onClick = { onPlayerClickListener(it) }
+                ) {
+                    Text(
+                        text = it.name,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.h6,
+                    )
+                }
             }
         }
 
@@ -39,12 +51,19 @@ fun ScoreTable(game: Game) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                for (player in game.players) Text(
-                    modifier = Modifier.weight(1.0F),
-                    textAlign = TextAlign.Center,
-                    text = player.scores.getOrNull(index)?.value?.toString() ?: "",
-                    style = MaterialTheme.typography.body1,
-                )
+                for (player in game.players) {
+                    val score = player.scores.getOrNull(index)
+                    TextButton(
+                        modifier = Modifier.weight(1.0F),
+                        onClick = { score?.let { onScoreClickListener(score) } }
+                    ) {
+                        Text(
+                            text = score?.value?.toString() ?: "",
+                            style = MaterialTheme.typography.body1,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
             }
         }
     }
@@ -54,6 +73,10 @@ fun ScoreTable(game: Game) {
 @Composable
 fun ScoreTablePreview() {
     ScoreisTheme {
-        ScoreTable(game = getSampleGame())
+        ScoreTable(
+            game = getSampleGame(),
+            onScoreClickListener = {},
+            onPlayerClickListener = {}
+        )
     }
 }
