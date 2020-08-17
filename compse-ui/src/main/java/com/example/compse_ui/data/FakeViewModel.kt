@@ -12,6 +12,7 @@ interface IScoreFragmentViewModel {
     fun addScore(playerAndScores: List<Pair<Player, Int>>)
     fun fillScores(defaultScore: Int = 0)
     fun editScoreValue(score: Score, newValue: Int)
+    fun removeScore(score: Score)
 }
 
 
@@ -66,6 +67,18 @@ class InMemoryScoreFragmentViewModel : ViewModel(), IScoreFragmentViewModel {
                         scores = player.scores.map {
                             if(it == score) score.copy(value = newValue) else it
                         }
+                    )
+                }
+            )
+        )
+    }
+
+    override fun removeScore(score: Score) {
+        _gameState.postValue(
+            game.copy(
+                players = game.players.map { player ->
+                    player.copy(
+                        scores = player.scores.filter { it != score }
                     )
                 }
             )

@@ -44,7 +44,11 @@ class ComposeActivity : AppCompatActivity() {
             )
             if(scoreToEdit != null) {
                 ScoreDialog(
-                    onCloseRequest = { setScoreToEdit(null) },
+                    onDismiss = { setScoreToEdit(null) },
+                    onDelete = {
+                        viewModel.removeScore(scoreToEdit)
+                        setScoreToEdit(null)
+                    },
                     score = scoreToEdit,
                     onConfirm = {
                         viewModel.editScoreValue(scoreToEdit, it)
