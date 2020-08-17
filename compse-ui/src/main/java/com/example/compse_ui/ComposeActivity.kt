@@ -4,13 +4,13 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.Composable
 import androidx.lifecycle.ViewModelProvider
 import androidx.ui.core.setContent
 import androidx.ui.livedata.observeAsState
+import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.tooling.preview.Preview
 import com.example.compse_ui.data.*
 import com.example.compse_ui.ui.AppLayout
@@ -18,6 +18,7 @@ import com.example.compse_ui.ui.ScoreTable
 import com.example.compse_ui.ui.ScoreisTheme
 import com.example.compse_ui.utils.getPlayers
 import com.example.compse_ui.utils.getScoreFor
+import com.example.compse_ui.ui.ScoreDialog
 import java.util.*
 
 
@@ -31,15 +32,26 @@ class ComposeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent lambda@{
             val game = viewModel.gameState.observeAsState().value ?: return@lambda
-
-            Log.d(this::class.simpleName, game.toString())
+            val (scoreToEdit, setScoreToEdit) = savedInstanceState<Score?> { null }
 
             App(
                 onSetRestToZeroClick = { viewModel.fillScores(0) },
-                onAddScoreClick = { tryConvertSpeechToText(RecordingRequest.GET_SCORE) },
                 onAddPlayerClick = { tryConvertSpeechToText(RecordingRequest.GET_PLAYERS) },
+                onAddScoreClick = { tryConvertSpeechToText(RecordingRequest.GET_SCORE) },
                 game = game,
+                onScoreClickListener = setScoreToEdit,
+                onPlayerClickListener = { }
             )
+            if(scoreToEdit != null) {
+                ScoreDialog(
+                    onCloseRequest = { setScoreToEdit(null) },
+                    score = scoreToEdit,
+                    onConfirm = {
+                        viewModel.editScoreValue(scoreToEdit, it)
+                        setScoreToEdit(null)
+                    }
+                )
+            }
         }
     }
 
@@ -118,7 +130,9 @@ fun App(
     onSetRestToZeroClick: () -> Unit,
     onAddPlayerClick: () -> Unit,
     onAddScoreClick: () -> Unit,
-    game: Game
+    game: Game,
+    onPlayerClickListener: (player: Player) -> Unit,
+    onScoreClickListener: (score: Score) -> Unit
 ) {
     ScoreisTheme {
         AppLayout(
@@ -126,7 +140,11 @@ fun App(
             onAddPlayerClick,
             onAddScoreClick
         ) {
-            ScoreTable(game)
+            ScoreTable(
+                game = game,
+                onPlayerClickListener = onPlayerClickListener,
+                onScoreClickListener = onScoreClickListener,
+            )
         }
     }
 }
@@ -134,6 +152,13 @@ fun App(
 @Preview
 @Composable
 fun AppPreview() {
-    App({}, {}, {}, game = getSampleGame())
+    App(
+        {},
+        {},
+        {},
+        game = getSampleGame(),
+        onPlayerClickListener = {},
+        onScoreClickListener = {}
+    )
 }
 

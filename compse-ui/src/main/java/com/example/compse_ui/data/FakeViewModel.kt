@@ -11,12 +11,13 @@ interface IScoreFragmentViewModel {
     fun addPlayer(names: List<String>)
     fun addScore(playerAndScores: List<Pair<Player, Int>>)
     fun fillScores(defaultScore: Int = 0)
+    fun editScoreValue(score: Score, newValue: Int)
 }
 
 
 class InMemoryScoreFragmentViewModel : ViewModel(), IScoreFragmentViewModel {
 
-    private val _gameState = MutableLiveData(Game(emptyList(), 0))
+    private val _gameState = MutableLiveData(getSimpleGame())
     override val gameState: LiveData<Game?> = _gameState
 
     private val game: Game get() = _gameState.value!!
@@ -51,6 +52,20 @@ class InMemoryScoreFragmentViewModel : ViewModel(), IScoreFragmentViewModel {
                     val diff = game.startedRounds - player.scores.size
                     player.copy(
                         scores = player.scores + seq.take(diff).map { Score(it, Random.nextInt()) }
+                    )
+                }
+            )
+        )
+    }
+
+    override fun editScoreValue(score: Score, newValue: Int) {
+        _gameState.postValue(
+            game.copy(
+                players = game.players.map { player ->
+                    player.copy(
+                        scores = player.scores.map {
+                            if(it == score) score.copy(value = newValue) else it
+                        }
                     )
                 }
             )
