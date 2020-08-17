@@ -9,7 +9,7 @@ import kotlin.random.Random
 interface IScoreFragmentViewModel {
     val gameState: LiveData<Game?>
     fun addPlayer(names: List<String>)
-    fun addScore(player: Player, score: Int)
+    fun addScore(playerAndScores: List<Pair<Player, Int>>)
     fun fillScores(defaultScore: Int = 0)
 }
 
@@ -29,15 +29,15 @@ class InMemoryScoreFragmentViewModel : ViewModel(), IScoreFragmentViewModel {
         )
     }
 
-    override fun addScore(player: Player, score: Int) {
+    override fun addScore(playerAndScores: List<Pair<Player, Int>>) {
         _gameState.postValue(
             game.copy(
-                players = game.players.map {
-                    if (it == player) {
-                        it.copy(scores = it.scores + listOf(Score(score, Random.nextInt())))
-                    } else {
-                        it
-                    }
+                players = game.players.map {player ->
+                    player.copy(
+                        scores = player.scores + playerAndScores
+                            .filter { (p, _) -> p == player }
+                            .map { (_, score) -> Score(score, Random.nextInt()) }
+                    )
                 }
             )
         )
