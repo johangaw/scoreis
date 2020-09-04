@@ -1,27 +1,37 @@
 package com.example.compse_ui.ui
 
-import androidx.compose.Composable
-import androidx.ui.foundation.Text
-import androidx.ui.savedinstancestate.savedInstanceState
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.onActive
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focusRequester
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import androidx.ui.tooling.preview.Devices
 import androidx.ui.tooling.preview.Preview
 import com.example.compse_ui.data.Score
-import androidx.compose.getValue
-import androidx.compose.onActive
-import androidx.compose.setValue
-import androidx.ui.core.Modifier
-import androidx.ui.core.focus.FocusModifier
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.TextFieldValue
-import androidx.ui.input.KeyboardType
-import androidx.ui.layout.*
-import androidx.ui.material.*
-import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.Close
-import androidx.ui.material.icons.filled.Delete
-import androidx.ui.material.icons.filled.Done
-import androidx.ui.text.TextRange
-import androidx.ui.unit.dp
 
+
+@ExperimentalFocus
 @Composable
 fun ScoreDialog(
     score: Score,
@@ -34,19 +44,23 @@ fun ScoreDialog(
         TextFieldValue(text, TextRange(0, text.length))
     }
 
+
     AlertDialog(
-        onCloseRequest = onDismiss,
+        onDismissRequest = onDismiss,
         title = { Text("Redigera poäng") },
         text = {
-            val focusModifier = FocusModifier()
+
+            val focusRequester = FocusRequester()
             onActive {
-                focusModifier.requestFocus()
+                focusRequester.requestFocus()
             }
-            FilledTextField(
-                modifier = focusModifier,
-                keyboardType = KeyboardType.Number,
+
+            OutlinedTextField(
+                modifier = Modifier.focusRequester(focusRequester),
                 value = scoreValue,
-                onValueChange = { scoreValue = it },
+                onValueChange = {
+                    scoreValue = it
+                },
                 label = { }
             )
         },
@@ -76,8 +90,9 @@ fun ScoreDialog(
 }
 
 
+@ExperimentalFocus
 @Composable
-@Preview(showBackground = true, widthDp = 400, heightDp = 700)
+@Preview(showBackground = true, device = Devices.PIXEL_3)
 fun ScoreDialogPreview() {
     ScoreisTheme {
         ScoreDialog(Score(16, 0))

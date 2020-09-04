@@ -1,23 +1,22 @@
 package com.example.compse_ui.ui
 
-import androidx.compose.Composable
-import androidx.compose.remember
-import androidx.compose.state
-import androidx.ui.animation.animate
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.shape.corner.CircleShape
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.layout.*
-import androidx.ui.material.*
-import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.Add
-import androidx.ui.res.vectorResource
+import androidx.compose.animation.animate
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.state
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.dp
 import com.example.compse_ui.R
 import kotlin.math.roundToInt
 
@@ -27,18 +26,17 @@ fun AppLayout(
     onSetRestToZeroClick: () -> Unit = {},
     onAddPlayerClick: () -> Unit = {},
     onAddScoreClick: () -> Unit = {},
-    content: @Composable (Modifier) -> Unit
+    content: @Composable (InnerPadding) -> Unit
 ) {
-    val scaffoldState = remember { ScaffoldState() }
+    val scaffoldState = rememberScaffoldState()
     val fabShape = CircleShape
 
     Scaffold(
         scaffoldState = scaffoldState,
-        topAppBar = { TopAppBar(title = { Text("Scoreis") }) },
-        bottomAppBar = {
+        topBar = { TopAppBar(title = { Text("Scoreis") }) },
+        bottomBar = {
             BottomAppBar(
                 cutoutShape = CircleShape,
-                fabConfiguration = it,
             ) {
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = onSetRestToZeroClick) {
@@ -56,7 +54,8 @@ fun AppLayout(
                 onClick = onAddScoreClick,
             )
         },
-        floatingActionButtonPosition = Scaffold.FabPosition.CenterDocked,
+        floatingActionButtonPosition = FabPosition.Center,
+        isFloatingActionButtonDocked = true,
         bodyContent = content
     )
 }

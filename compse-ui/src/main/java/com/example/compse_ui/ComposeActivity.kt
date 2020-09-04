@@ -6,11 +6,12 @@ import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.platform.setContent
 import androidx.lifecycle.ViewModelProvider
-import androidx.ui.core.setContent
-import androidx.ui.livedata.observeAsState
-import androidx.ui.savedinstancestate.savedInstanceState
 import androidx.ui.tooling.preview.Preview
 import com.example.compse_ui.data.*
 import com.example.compse_ui.ui.AppLayout
@@ -28,6 +29,7 @@ class ComposeActivity : AppCompatActivity() {
         ViewModelProvider(this).get(InMemoryScoreFragmentViewModel::class.java)
     }
 
+    @ExperimentalFocus
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent lambda@{
